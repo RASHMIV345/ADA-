@@ -13,3 +13,296 @@ N = 10000
 N = 100000
 
 As N increases, the parallel version should show a more significant performance improvement over the serial version, especially if your system has multiple processor cores.
+
+Time Complexity analysis
+
+Time Complexity Analysis
+1. Prime Checking Function:
+The prime checking function, is_prime(n), checks whether a given number n is prime. Let's analyze its time complexity:
+
+First condition: The function checks if n <= 1 (constant time, 
+𝑂
+(
+1
+)
+O(1)).
+
+Second condition: If n == 2, it's prime, and it returns immediately (constant time, 
+𝑂
+(
+1
+)
+O(1)).
+
+Third condition: If n % 2 == 0 (checks if n is even), the function returns false (constant time, 
+𝑂
+(
+1
+)
+O(1)) for numbers greater than 2.
+
+Loop: If n > 2 and is odd, the function checks divisibility from 3 to 
+𝑛
+n
+​
+  in steps of 2 (i.e., only odd numbers).
+
+This loop runs 
+𝑛
+2
+2
+n
+​
+ 
+​
+  times in the worst case, so its time complexity is 
+𝑂
+(
+𝑛
+)
+O( 
+n
+​
+ ).
+
+Thus, the overall time complexity of the is_prime() function is:
+
+𝑂
+(
+𝑛
+)
+O( 
+n
+​
+ )
+2. Serial Version:
+In the serial version, the program checks whether each number from 2 to N is prime. It calls is_prime(i) for each number i in this range. The time complexity of this part is:
+
+For each number i from 2 to N, we call is_prime(i), which has a time complexity of 
+𝑂
+(
+𝑖
+)
+O( 
+i
+​
+ ).
+
+Thus, the total time complexity for checking all numbers between 2 and N is the sum of the time complexities for each is_prime(i) call:
+
+𝑇
+serial
+(
+𝑁
+)
+=
+∑
+𝑖
+=
+2
+𝑁
+𝑂
+(
+𝑖
+)
+T 
+serial
+​
+ (N)= 
+i=2
+∑
+N
+​
+ O( 
+i
+​
+ )
+Since 
+𝑂
+(
+𝑖
+)
+O( 
+i
+​
+ ) increases as i increases, we can approximate this sum by integrating over the range:
+
+∫
+2
+𝑁
+𝑥
+ 
+𝑑
+𝑥
+=
+2
+3
+[
+𝑥
+3
+/
+2
+]
+2
+𝑁
+=
+2
+3
+(
+𝑁
+3
+/
+2
+−
+2
+3
+/
+2
+)
+∫ 
+2
+N
+​
+  
+x
+​
+ dx= 
+3
+2
+​
+ [x 
+3/2
+ ] 
+2
+N
+​
+ = 
+3
+2
+​
+ (N 
+3/2
+ −2 
+3/2
+ )
+Thus, the total time complexity for the serial version is approximately:
+
+𝑂
+(
+𝑁
+3
+/
+2
+)
+O(N 
+3/2
+ )
+3. Parallel Version (OpenMP):
+In the parallel version, the work is divided among multiple threads, where each thread checks a subset of numbers between 2 and N. The time complexity of the parallel version depends on the number of threads (T), the number of numbers processed by each thread, and the overhead of managing the threads.
+
+Parallelism: The #pragma omp parallel for directive distributes the work of checking prime numbers across multiple threads. Each thread checks a subset of the range [2, N].
+
+Work per thread: Each thread checks numbers that are approximately evenly distributed across the range. Each thread performs 
+𝑂
+(
+𝑖
+)
+O( 
+i
+​
+ ) work for each number i assigned to it.
+
+Thus, for T threads, the time complexity per thread is approximately:
+
+𝑂
+(
+𝑁
+3
+/
+2
+𝑇
+)
+O( 
+T
+N 
+3/2
+ 
+​
+ )
+However, the total parallel time complexity is reduced by a factor of 
+𝑇
+T, assuming the work is perfectly divided and there’s no significant overhead. But note that load balancing and synchronization overhead may affect the performance, which could introduce some constant factors. Therefore, the parallel version’s time complexity is approximately:
+
+𝑂
+(
+𝑁
+3
+/
+2
+𝑇
+)
+O( 
+T
+N 
+3/2
+ 
+​
+ )
+Where T is the number of threads used. The more threads you have (up to the number of available cores), the lower the execution time.
+
+Summary of Time Complexities:
+Serial Version: The time complexity of the serial version is approximately:
+
+𝑂
+(
+𝑁
+3
+/
+2
+)
+O(N 
+3/2
+ )
+Parallel Version: The time complexity of the parallel version is approximately:
+
+𝑂
+(
+𝑁
+3
+/
+2
+𝑇
+)
+O( 
+T
+N 
+3/2
+ 
+​
+ )
+Where T is the number of threads. If T is equal to the number of available CPU cores, the performance improves significantly, and the time complexity approaches 
+𝑂
+(
+𝑁
+3
+/
+2
+)
+O(N 
+3/2
+ ) divided by the number of cores.
+
+Conclusion:
+Serial version will be slower as N increases due to the 
+𝑂
+(
+𝑁
+3
+/
+2
+)
+O(N 
+3/2
+ ) time complexity.
+
+Parallel version improves performance, especially for larger values of N, as the work is distributed across multiple threads. The execution time decreases roughly in proportion to the number of threads, but the exact speedup depends on factors like the number of available CPU cores and overhead.
